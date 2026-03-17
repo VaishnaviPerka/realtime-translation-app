@@ -1,48 +1,90 @@
-# realtime-translation-app
-Real-time English↔Spanish/Hindi translation using NLP and beam search
 # Real-Time Translation App
 
-> A real-time NLP translation application for English↔Spanish and English↔Hindi using beam search decoding — improving translation quality by ~15%.
+> A suite of three NLP-powered language tools — beam search neural machine translation (English→Spanish), real-time audio translation (English→Hindi), and an intelligent error detection system — built during a virtual internship.
 
 ![Status](https://img.shields.io/badge/Status-Complete-brightgreen)
-![Tools](https://img.shields.io/badge/Tools-Python%20%7C%20NLP%20%7C%20Beam%20Search-orange)
+![Language](https://img.shields.io/badge/Language-Python-3776AB)
+![Type](https://img.shields.io/badge/Type-Virtual%20Internship%20Project-purple)
+![Tools](https://img.shields.io/badge/Tools-TensorFlow%20%7C%20NLP%20%7C%20tkinter-orange)
 
 ---
 
 ## 📌 Project Overview
 
-Developed during a virtual internship, this application provides real-time bidirectional translation between English–Spanish and English–Hindi. The system uses NLP techniques with beam search decoding to improve translation fluency, along with built-in error detection and suggestion logic to enhance accuracy.
+This internship project tackles three distinct challenges in real-time language processing:
+
+1. **Beam Search NMT** — Improving English→Spanish translation quality using a Transformer model with beam search decoding
+2. **Error Detection & Suggestion** — Detecting incorrect word inputs and providing smart suggestions using difflib
+3. **Audio Translation** — Converting spoken English to Hindi in real-time using speech recognition and Google Translate
+
+Each tool features a user-friendly **tkinter GUI** and demonstrates practical NLP applications beyond standard greedy decoding.
 
 ---
 
-## 🎯 Objectives
+## 🗂️ Repository Structure
 
-- Build a **real-time translation system** for two language pairs
-- Implement **beam search decoding** to improve translation quality over greedy approaches
-- Develop **error detection and suggestion logic** to catch and correct mistranslations
-- Achieve measurable improvement in translation quality (~15% over baseline)
-
----
-
-## 🧠 Technical Approach
-
-### Why Beam Search?
-Unlike greedy decoding (which picks the single best token at each step), beam search maintains multiple candidate sequences simultaneously. This leads to more fluent, contextually accurate translations — especially for longer or more complex sentences.
-
-### Error Detection Logic
-- Detects out-of-vocabulary tokens and proposes closest matches
-- Flags low-confidence translations for user review
-- Suggests alternative phrasings when ambiguity is detected
+```
+realtime-translation-app/
+├── gui.py              # Task 1 — English→Spanish Transformer + Beam Search GUI
+├── appp.py             # Task 2 — Error Detection & Word Suggestion GUI
+├── trans.py            # Task 3 — Real-Time English→Hindi Audio Translation GUI
+├── models/
+│   ├── Transformer_model/          # Saved Transformer model (TFSMLayer)
+│   ├── eng_vectorization_config.json
+│   ├── spa_vectorization_config.json
+│   ├── eng_vocab.json
+│   └── spa_vocab.json
+├── INTERNSHIP_REPORT.docx          # Full internship report
+└── README.md
+```
 
 ---
 
-## 📊 Results
+## ✨ Features
 
-| Metric | Baseline | With Beam Search |
-|---|---|---|
-| Translation Quality | — | ~15% improvement |
-| Language Pairs | English↔Spanish, English↔Hindi | ✅ |
-| Error Detection | None | ✅ Implemented |
+### Task 1 — English→Spanish Neural Machine Translation (`gui.py`)
+
+- Built on a **Transformer architecture** loaded via `TFSMLayer` (TensorFlow SavedModel)
+- Implements **beam search decoding** (beam width = 3) for higher quality translations vs. greedy decoding
+- Beam search explores multiple candidate sequences simultaneously, selecting the highest-scoring translation
+- Custom text standardization (lowercasing, punctuation stripping including `¿`)
+- Separate vocabulary files for English and Spanish loaded at runtime
+- Simple **tkinter GUI** — input English text, click Translate, view Spanish output
+
+**How Beam Search Works:**
+```
+Input sentence → Tokenize → Transformer predictions
+→ Keep top-k (beam width=3) candidates at each step
+→ Score by log-probability → Select best final sequence
+→ Decode token IDs → Spanish translation
+```
+
+---
+
+### Task 2 — Error Detection & Word Suggestion (`appp.py`)
+
+- Validates user-entered words against a predefined vocabulary of 100 English words
+- Uses Python's `difflib.get_close_matches()` to suggest up to 3 closest alternatives for incorrect words
+- Tracks incorrect word entries and escalates feedback after 2+ errors
+- Saves valid words to a `.csv` file for record keeping
+- **tkinter GUI** with word entry, submit, and save-to-CSV functionality
+
+**Example:**
+```
+User enters: "maching"
+App suggests: "match", "machine", "manage"
+```
+
+---
+
+### Task 3 — Real-Time Audio Translation: English→Hindi (`trans.py`)
+
+- Captures live microphone audio using the **SpeechRecognition** library
+- Converts audio to text via **Google Speech Recognition API**
+- Validates text (filters words starting with 'M' or 'O')
+- Translates recognized English text to **Hindi** using **Googletrans**
+- Time-restricted: operates after 6 PM IST (configurable)
+- **tkinter GUI** with a single "Translate" button for one-click voice translation
 
 ---
 
@@ -51,58 +93,74 @@ Unlike greedy decoding (which picks the single best token at each step), beam se
 | Category | Tools |
 |---|---|
 | Language | Python |
-| NLP | Tokenization, sequence modeling |
-| Decoding | Beam search algorithm |
-| Error Handling | Custom suggestion logic |
-| Environment | Jupyter Notebook |
-
----
-
-## 📁 Repository Structure
-
-```
-realtime-translation-app/
-├── src/
-│   ├── translator.py             # Core translation engine
-│   ├── beam_search.py            # Beam search decoder
-│   ├── error_detector.py         # Error detection & suggestions
-│   └── app.py                    # Main application entry point
-├── models/
-│   └── model_weights/            # Pre-trained model weights
-├── notebooks/
-│   └── translation_demo.ipynb    # Demo notebook
-├── tests/
-│   └── test_translations.py      # Sample test cases
-└── README.md
-```
+| Deep Learning | TensorFlow, Keras |
+| NLP | Neural Machine Translation, Beam Search Decoding, Text Vectorization |
+| Speech | SpeechRecognition, Google Speech API |
+| Translation | Googletrans, Custom Transformer Model |
+| Error Detection | difflib (`get_close_matches`) |
+| GUI | tkinter, ttk |
+| Data | CSV, JSON (vocab/config files) |
 
 ---
 
 ## 🚀 How to Run
 
+### Install dependencies
 ```bash
-# Clone the repo
-git clone https://github.com/VaishnaviPerka/realtime-translation-app.git
-cd realtime-translation-app
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the app
-python src/app.py
+pip install tensorflow keras googletrans==4.0.0-rc1 SpeechRecognition pyaudio pytz
 ```
+
+### Task 1 — English→Spanish Translation
+```bash
+python gui.py
+```
+> Requires model files in `models/` directory (Transformer_model, vocab JSONs)
+
+### Task 2 — Error Detection
+```bash
+python appp.py
+```
+
+### Task 3 — Audio Translation (English→Hindi)
+```bash
+python trans.py
+```
+> Requires a working microphone
+
+---
+
+## 📊 Results & Impact
+
+| Task | Outcome |
+|---|---|
+| Beam Search NMT | ~15% improvement in translation quality over greedy decoding |
+| Error Detection | Accurate suggestions for misspelled words using difflib |
+| Audio Translation | Real-time English→Hindi speech translation via mic input |
+
+---
+
+## 🏆 Skills Demonstrated
+
+- Neural Machine Translation with Transformer architecture
+- Beam search decoding implementation from scratch
+- Speech recognition and real-time audio processing
+- GUI development with tkinter
+- NLP text preprocessing and custom standardization
+- Error handling and user-centric design
 
 ---
 
 ## 🔮 Future Improvements
 
-- [ ] Add support for additional language pairs
-- [ ] Build a web interface with Flask or Streamlit
-- [ ] Integrate with a pre-trained transformer model (e.g., Helsinki-NLP)
-- [ ] Add pronunciation guide for translated output
+- [ ] Add support for more language pairs beyond Spanish and Hindi
+- [ ] Replace Googletrans with a more robust translation API (DeepL, Google Cloud)
+- [ ] Build a web interface using Flask or Streamlit
+- [ ] Improve audio translation accuracy with Whisper (OpenAI)
+- [ ] Remove time restriction and word filter for broader usability
 
 ---
 
 ## 👩‍💻 Author
 
-**Vaishnavi Perka** — [LinkedIn](https://www.linkedin.com/in/vaishnavi-perka) · [Portfolio](https://vaishnaviperka.github.io)
+**Vaishnavi Perka** — [LinkedIn](https://www.linkedin.com/in/vaishnavi-perka) · [Portfolio](https://vaishnaviperka.github.io)  
+*Virtual Internship Project*
